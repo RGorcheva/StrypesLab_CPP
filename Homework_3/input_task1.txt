@@ -1,0 +1,25 @@
+Ivan Petrov
+Galina Ivanova
+Petar Petrov
+Penka Georgieva
+Tatyana Georgieva
+Georgi Georgiev
+Ivan Dimitrov
+Maya Dimitrova
+Asen Dimitrov
+Julia Dimova
+Gergana Dimova
+
+Galina Ivanova
+Mariya Ivanova
+Preslav Ivanov
+Preslav Ivanov
+Jana Marinova
+Jordan Ivanov
+Ivan Petrov
+Jordan Ivanov
+exit
+
+AABC
+R2(AB)3(Z)
+AB12(X)2(B3(A))

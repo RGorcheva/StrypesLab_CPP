@@ -1,0 +1,11 @@
+These programs are compiled with g++ compiler on Linux Ubuntu OS.
+The file CMakeLists.txt genetates makefile for 3 programs:
+$cmake .
+The makefile will genetate executable files for each program:
+$make
+
+
+Every source file can be compiled without cmake or make comands with:
+$g++ task[1..4].cpp -o task[1..4]
+Execute the programs:
+./task[1..4]
