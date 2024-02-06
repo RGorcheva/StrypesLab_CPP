@@ -59,8 +59,8 @@ void append(DList*& list, DList* element)
         it = it->next;
     }
     it->next = element;
-    it = it->next;
-    it->prev = old;
+    element->prev = it;
+    element->next = nullptr;
 }
 
 /**
@@ -83,6 +83,8 @@ void prepend(DList*& list, DList* element)
         return;
     }
     element->next = list;
+    element->prev = nullptr;
+    list->prev = element;
     list = element;
 }
 
@@ -92,52 +94,46 @@ void prepend(DList*& list, DList* element)
  * @param list - the list input/output, points to new start of list after
  * @param count - positive value rotates left, negative value rotate right
  */
-void rotateList(DList*& list, int count) {  //nok
-	if (!count || !list)
-	{
-		return;
-	}
-    int countElements = 1;
-	DList* it = list;
-	while (it->next != nullptr)
-	{
-		it = it->next;
-        countElements++;
-	}
-    DList* last = it;
-    int move = count % countElements;
-	if (move > 0)
-	{
-        int num = 0;
-        it = list;
-		while (num != move - 1)
-		{
-			it = it->next;
-			num++;
-		}
-        DList* previousList = it->next;
-        previousList->prev = nullptr;
-        it->next = nullptr;
-        list->prev = last;
-        last->next = list;
-        list = previousList;
-	}
-    else
+void rotateList(DList*& list, int count) {
+    if (!count || !list)
+    {
+        return;
+    }
+    DList* it = list;
+    while (it->next != nullptr)
+    {
+        it = it->next;
+    }
+    it->next = list;
+    list->prev = it;
+    if (count > 0)
     {
         int num = 0;
-        move = -move;
-        it = last;
-        while (num != move - 2)
+        it = list;
+        while (num != count)
+        {
+            it = it->next;
+            num++;
+        }
+        DList* previous = it->prev;
+        it->prev = nullptr;
+        previous->next = nullptr;
+        list = it;
+    }
+    else
+    {
+        count = -count;
+        int num = 0;
+        while (num != count)
         {
             it = it->prev;
             num++;
         }
-        DList* previousList = it->next;
-        previousList->prev = nullptr;
-        it->next = nullptr;
-        list->prev = last;
-        last->next = list;
-        list = previousList;
+        DList* last = it;
+        DList* post = it->next;
+        post->prev = nullptr;
+        last->next = nullptr;
+        list = post;
     }
 }
 
@@ -147,8 +143,10 @@ void rotateList(DList*& list, int count) {  //nok
  * @param list - input the element to remove, output the next element in the list or nullptr
  * @return DList* - the removed element
  */
-DList* detachElement(DList*& list) {  //nok
-    if (!list) {
+DList* detachElement(DList*& list) //NOK
+{
+    if (!list)
+    {
         return nullptr;
     }
     if (!list->prev && !list->next)
@@ -156,39 +154,30 @@ DList* detachElement(DList*& list) {  //nok
         return list;
     }
     DList* it = list;
-    list = list->next;
-    if (list) {
+    if (!list->prev)
+    {
+        list = list->next;
         list->prev = nullptr;
+        it->prev = nullptr;
+        it->next = nullptr;
+        return it;
     }
-
-    it->next = nullptr;
+    if (!list->next)
+    {
+        list = list->prev;
+        list->next = nullptr;
+        it->prev = nullptr;
+        it->next = nullptr;
+        return it;
+    }
+    DList* pred = list->prev;
+    DList* post = list->next;
+    pred->next = post;
+    post->prev = pred;
     it->prev = nullptr;
+    it->next = nullptr;
     return it;
 }
-//DList* detachElement(DList*& list) //NOK
-//
-//{
-//    if (!list->prev && !list->next)
-//    {
-//        return list;
-//    }
-//    DList* it = list;
-//    //if (!list->prev)
-//    //{
-//    //    list = list->next;
-//    //    list->prev = nullptr;
-//    //    return it;
-//    //}
-//    //if (!list->next)
-//    //{
-//    //    list = nullptr;
-//    //    return it;
-//    //}
-
-//    //it->prev = nullptr;
-//    //it->next = nullptr;
-//    return it;
-//}
 
 /**
  * @brief Delete all elements in the list calling freeElement to deallocate the memory
@@ -226,12 +215,12 @@ void filterList(DList*& list, FilterElement filterElement, FreeElement freeEleme
   * @param iterName - the name of the element in the for loop
   * @param list - the list
   */
-#define FOR_EACH_R(Type, iterName, list)    DList* it = list;\
-                                            while (it->next != nullptr)\
-                                            {\
-                                                it = it->next;\
-                                            };\
-                                            for (Type* iterName = (Type*)it; iterName != nullptr; iterName = (Type*)(((DList*)iterName)->prev))
+//#define FOR_EACH_R(Type, iterName, list)    DList* it = list;\
+//                                            while (it->next != nullptr)\
+//                                            {\
+//                                                it = it->next;\
+//                                            };\
+//                                            for (Type* iterName = (Type*)it; iterName != nullptr; iterName = (Type*)(((DList*)iterName)->prev))
 
 
 void freeList(DList*& list, FreeElement freeElement)
@@ -262,7 +251,7 @@ void filterList(DList*& list, FilterElement filterElement, FreeElement freeEleme
 }
 
 
-  // End of implementation
+// End of implementation
 
 void printList(DList* list) {
     FOR_EACH(Number, s, list) {
@@ -323,19 +312,19 @@ int main() {
     rotateList(list, -6);
     printList(list);
 
-    //DList* odd = splitList(list, isOdd);
+    DList* odd = splitList(list, isOdd);
 
-    //std::cout << "Split even elements: ";
-    //printList(list);
-    //std::cout << "Split odd elements: ";
-    //printList(odd);
+    std::cout << "Split even elements: ";
+    printList(list);
+    std::cout << "Split odd elements: ";
+    printList(odd);
 
-    //filterList(list, isDiv3, freeNumber);
-    //std::cout << "Split even elements, filter div 3: ";
-    //printList(list);
-    //filterList(odd, isDiv3, freeNumber);
-    //std::cout << "Split odd elements, filter div 3: ";
-    //printList(odd);
+    //filterlist(list, isdiv3, freenumber);
+    //std::cout << "split even elements, filter div 3: ";
+    //printlist(list);
+    //filterlist(odd, isdiv3, freenumber);
+    //std::cout << "split odd elements, filter div 3: ";
+    //printlist(odd);
 
     //std::cout << "odd reversed: ";
     //FOR_EACH_R(Number, n, odd) {
@@ -349,7 +338,7 @@ int main() {
     //}
     //std::cout << std::endl;
 
-   // freeList(odd, freeNumber);
+    freeList(odd, freeNumber);
     freeList(list, freeNumber);
     return 0;
 }
